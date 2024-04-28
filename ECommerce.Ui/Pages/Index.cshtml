@@ -1,0 +1,158 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<hr />
+<div style="margin: 5px auto; text-align: center">
+    <h2>Product List</h2>
+</div>
+<hr />
+<div class="container">
+
+    <form method="get" asp-page="./Index">
+        <div class="row">
+            <div class="col-12 col-md-9 input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+                <input name="searchString" type="text" class="form-control" placeholder="Search product" value="@Model.SearchTerm">
+                <div class="input-group-append">
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a asp-page="./Index" class="btn btn-danger">Clear</a>
+                    }
+                    <input type="submit" value="Search" class="btn btn-success" />
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <select class="form-control" name="category" selected="@Model.CategoryFilter" asp-items="Model.Categories"></select>
+            </div>
+        </div>
+        <div class="row mt-1 mb-1">
+            <div class="col-12">
+                <div class="form-check">
+                    <input id="availableOnly" name="availableOnly" type="checkbox" class="form-check-input" checked="@Model.ShowAvailableOnly" />
+                    <label class="form-check-label" for="availableOnly">Show Available Products Only</label>
+                </div>
+            </div>
+        </div>
+    </form>
+    @if (Model.ProductVMs.Count() > 0)
+    {
+        <div class="row pb-3 backgroundWhite">
+            @foreach (var productVM in Model.ProductVMs)
+            {
+                <div class="col-xl-3 col-md-6">
+                    <div class="row p-2">
+                        <div class="col-12 p-2" style="border:1px solid #dee2e6 ; border-radius: 5px;">
+                            <div class="card" style="border:0px;">
+                                <img src="@(productVM.Product.ImageUrl ?? "/images/No_Image_Available.jpg")" class="card-img rounded mb-3" style="object-fit: contain; height: 30vh;" alt="Image load failed"/>
+                                <div class="pl-1">
+                                    <p class="card-title h5" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <b style="color: #2c3e50">@productVM.Product.Name </b>
+                                    </p>
+                                    <p class="card-title text-primary">
+                                        <b>
+                                            Category:<br />
+                                            @if (productVM.Categories.Count() == 0)
+                                            {
+                                                <span class="badge badge-danger">None</span>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var category in productVM.Categories)
+                                                {
+                                                    <span class="badge badge-warning">@category</span>
+                                                }
+                                            }
+                                        </b>
+                                    </p>
+                                </div>
+                                <div style="padding-left:5px;">
+                                    <p><b class="">RM @productVM.Product.Price.ToString("N")</b></p>
+                                </div>
+                            </div>
+                            <div>
+                                <a asp-area="Item" asp-page="/Details" asp-route-id="@productVM.Product.Id" class="btn btn-primary form-control text-white">
+                                    <i class="fas fa-eye"></i>&nbsp; Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.ProductVMs.TotalPages > 1)
+        {
+
+            <div class="my-2">
+                @{
+                    var prevDisabled = !Model.ProductVMs.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.ProductVMs.HasNextPage ? "disabled" : "";
+                }
+                <ul class="justify-content-center pagination">
+                    <li class="page-item @prevDisabled">
+                        <a asp-page="./Index"
+                           asp-route-pageIndex="@(Model.ProductVMs.PageIndex - 1)"
+                           asp-route-searchString="@Model.SearchTerm"
+                           class="page-link bg-primary">
+                            <span>&lt;</span>
+                        </a>
+                    </li>
+                    <li class="page-item text-black">
+                        <span class="page-link bg-primary">
+                            @(Model.ProductVMs.PageIndex) / @(Model.ProductVMs.TotalPages)
+                        </span>
+                    </li>
+                    <li class="page-item @nextDisabled">
+                        <a asp-page="./Index"
+                           asp-route-pageIndex="@(Model.ProductVMs.PageIndex + 1)"
+                           asp-route-searchString="@Model.SearchTerm"
+                           class="page-link bg-primary">
+                            <span>&gt;</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center mt-4">
+            <h3 class="text-secondary">No products found.</h3>
+        </div>
+    }
+</div>
+
+
+@section Scripts {
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script async>
+
+            $(document).ready(function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'E-Mall',
+                    text: "@TempData["SuccessMessage"]",
+                });
+            });
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script async>
+            $(document).ready(function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'E-Mall',
+                    text: "@TempData["ErrorMessage"]",
+                });
+            });
+        </script>
+    }
+}

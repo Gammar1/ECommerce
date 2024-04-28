@@ -1,0 +1,38 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Http
+@using ECommerce.Utility
+@using ECommerce.Ui.Services
+
+<ul class="navbar-nav">
+    @if (User.Identity.IsAuthenticated)
+    {
+        @if (User.IsInRole(SD.ROLE_CUSTOMER))
+        {
+            <li style="color:white;">
+                <vc:cart-icon></vc:cart-icon>
+            </li>
+        }
+        <li class="nav-item">
+            <a class="nav-link" style="cursor:pointer">
+                <partial name="_NameRolePartial" />
+            </a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Account" asp-page="/Logout" method="post">
+                <button type="submit" class="nav-link btn btn-link">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        @*<li class="nav-item">
+                <a class="nav-link" asp-area="Account" asp-page="/Register">Register</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Account" asp-page="/Login">Login</a>
+            </li>*@
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Account" asp-page="/Login">Login / Register</a>
+        </li>
+    }
+</ul>
